@@ -12,12 +12,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  void _createTempVoca() async {
-    var voca = Vocabulary(voca: "take a stand", description: "take a stand");
-    await SqlVocaRepository.create(voca);
-    update();
-  }
-
   void update() => setState(() {});
 
   Future<List<Vocabulary>> _load() async {
@@ -31,8 +25,11 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            SizedBox(width: 10),
-            Text(widget.title, style: TextStyle(color: Colors.black))
+            Text(widget.title,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold))
           ],
         ),
         backgroundColor: Colors.grey[200],
@@ -64,15 +61,21 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           FloatingActionButton(
             heroTag: "shuffle",
-            onPressed: _createTempVoca,
+            onPressed: () {
+              // TODO: onPressed shuffle
+            },
             tooltip: 'Shuffle',
             child: const Icon(Icons.shuffle),
           ),
           const SizedBox(height: 10),
           FloatingActionButton(
             heroTag: "add",
-            onPressed: () {
-              Navigator.pushNamed(context, "/detail");
+            onPressed: () async {
+              await Navigator.pushNamed(context, "/detail").then((res) {
+                if (res != null && res is bool && res) {
+                  update();
+                }
+              });
             },
             tooltip: 'Increment',
             child: const Icon(Icons.add),

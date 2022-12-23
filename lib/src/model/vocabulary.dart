@@ -9,9 +9,9 @@ class Vocabulary {
   static String tableName = "voca";
 
   final int? id;
-  final String voca;
-  final String description;
-  final String? example;
+  String voca;
+  String description;
+  String? example;
 
   Vocabulary(
       {this.id, required this.voca, required this.description, this.example});
