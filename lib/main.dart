@@ -49,7 +49,20 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-
+  List<Color> colors = [
+    Colors.green,
+    Colors.blueAccent,
+    Colors.amberAccent,
+    Colors.green,
+    Colors.blueAccent
+  ];
+  List<String> vocas = [
+    "take a stand",
+    "nag",
+    "absorption",
+    "crash",
+    "nod off"
+  ];
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -63,12 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -83,35 +90,13 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.grey[200],
         elevation: 0.0,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+      body: SafeArea(
+        child: ListView.builder(
+            physics: BouncingScrollPhysics(),
+            itemExtent: 200,
+            itemCount: vocas.length,
+            itemBuilder: ((context, index) =>
+                VocaWidget(text: vocas[index], color: colors[index]))),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -130,5 +115,35 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class VocaWidget extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const VocaWidget({super.key, required this.text, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: EdgeInsets.all(10),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 1,
+                  blurRadius: 7,
+                  offset: Offset(0, 5))
+            ]),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ));
   }
 }
