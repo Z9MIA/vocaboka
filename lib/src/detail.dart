@@ -18,48 +18,48 @@ typedef OnChangeExample = void Function(String example);
 
 class _DetailScreenState extends State<DetailScreen> {
   final Vocabulary _vocabulary = Vocabulary(voca: "", description: "");
-  bool _isSaveEnabled = false;
-
-  void validateSave() {
-    setIsSaveEnabled(
-        _vocabulary.voca.isNotEmpty && _vocabulary.description.isNotEmpty);
-  }
+  final _formKey = GlobalKey<FormState>();
+  final snackBar = SnackBar(
+    content: Text("저장이 완료되었습니다."),
+    backgroundColor: Colors.purple[800],
+    duration: Duration(milliseconds: 1000),
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20), side: BorderSide(width: 0)),
+    dismissDirection: DismissDirection.down,
+  );
 
   // TODO: Use Form
-  void onChangeVoca(String voca) {
+  void setVoca(String voca) {
     setState(() {
       if (voca.isNotEmpty) {
         _vocabulary.voca = voca;
       }
-      validateSave();
     });
   }
 
-  void onChangeDescription(String description) {
+  void setDescription(String description) {
     setState(() {
       if (description.isNotEmpty) {
         _vocabulary.description = description;
       }
-      validateSave();
     });
   }
 
-  void onChangeExample(String example) {
+  void setExample(String example) {
     setState(() {
       _vocabulary.example = example;
-      validateSave();
-    });
-  }
-
-  void setIsSaveEnabled(bool enabled) {
-    setState(() {
-      _isSaveEnabled = enabled;
     });
   }
 
   void _onSave() async {
-    await SqlVocaRepository.create(_vocabulary);
-    Navigator.pop(context, true);
+    print("onSave: ${_formKey.currentState?.validate()}");
+    if (_formKey.currentState?.validate() == true) {
+      _formKey.currentState?.save();
+
+      await SqlVocaRepository.create(_vocabulary);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      Navigator.pop(context, true);
+    }
   }
 
   @override
@@ -81,9 +81,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       },
                       child: Text("저장",
                           style: TextStyle(
-                              color: _isSaveEnabled
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).disabledColor,
+                              color: Theme.of(context).primaryColor,
                               fontWeight: FontWeight.bold))))
             ],
           ),
@@ -91,10 +89,13 @@ class _DetailScreenState extends State<DetailScreen> {
           elevation: 0.0,
         ),
         body: SafeArea(
-            child: VocaInputWidget(
-                onChangeVoca: onChangeVoca,
-                onChangeDescription: onChangeDescription,
-                onChangeExample: onChangeExample)));
+            child: Form(
+          key: _formKey,
+          child: VocaInputWidget(
+              onChangeVoca: setVoca,
+              onChangeDescription: setDescription,
+              onChangeExample: setExample),
+        )));
   }
 }
 
@@ -109,6 +110,28 @@ class VocaInputWidget extends StatelessWidget {
   final OnChangeDescription onChangeDescription;
   final OnChangeExample onChangeExample;
 
+  renderTextFormField({
+    required String label,
+    required FormFieldSetter onSaved,
+    required FormFieldValidator validator,
+  }) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(label, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+      SizedBox(height: 10),
+      TextFormField(
+        onSaved: onSaved,
+        validator: validator,
+        decoration: InputDecoration(
+            contentPadding: EdgeInsets.fromLTRB(30, 20, 30, 20),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(40),
+                borderSide: BorderSide(width: 0, style: BorderStyle.none)),
+            filled: true,
+            fillColor: Colors.grey[300]),
+      )
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -117,56 +140,38 @@ class VocaInputWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("단어",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          SizedBox(height: 10),
-          TextField(
-            onChanged: onChangeVoca,
-            decoration: InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(30, 20, 30, 20),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(40),
-                    borderSide: BorderSide(width: 0, style: BorderStyle.none)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(40),
-                    borderSide: BorderSide(width: 0, style: BorderStyle.none)),
-                filled: true,
-                fillColor: Colors.grey[300]),
-          ),
+          renderTextFormField(
+              label: "단어",
+              onSaved: (val) {
+                onChangeVoca(val);
+              },
+              validator: (val) {
+                if (val.length < 1) {
+                  return "단어는 필수 입력사항입니다.";
+                }
+                return null;
+              }),
           SizedBox(height: 40),
-          Text("의미",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          SizedBox(height: 10),
-          TextField(
-            onChanged: onChangeDescription,
-            decoration: InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(30, 20, 30, 20),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(40)),
-                    borderSide: BorderSide(width: 0, style: BorderStyle.none)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(40),
-                    borderSide: BorderSide(width: 0, style: BorderStyle.none)),
-                filled: true,
-                fillColor: Colors.grey[300]),
-          ),
+          renderTextFormField(
+              label: "의미",
+              onSaved: (val) {
+                onChangeDescription(val);
+              },
+              validator: (val) {
+                if (val.length < 1) {
+                  return "의미는 필수 입력사항입니다.";
+                }
+                return null;
+              }),
           SizedBox(height: 40),
-          Text("예제",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          SizedBox(height: 10),
-          TextField(
-            onChanged: onChangeExample,
-            decoration: InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(30, 20, 30, 20),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(40)),
-                    borderSide: BorderSide(width: 0, style: BorderStyle.none)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(40),
-                    borderSide: BorderSide(width: 0, style: BorderStyle.none)),
-                filled: true,
-                fillColor: Colors.grey[300]),
-          ),
+          renderTextFormField(
+              label: "예제",
+              onSaved: (val) {
+                onChangeExample(val);
+              },
+              validator: (val) {
+                return null;
+              }),
         ],
       ),
     );
