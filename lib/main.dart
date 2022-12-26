@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vocaboka/src/detail.dart';
+import 'package:vocaboka/src/details.dart';
 import 'package:vocaboka/src/home.dart';
 import 'package:vocaboka/src/repository/sql_database.dart';
 
@@ -23,8 +23,7 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: "/",
         routes: {
-          "/": (context) => const HomeScreen(title: '보카보까 \u{1F440}'),
-          "/detail": (context) => const DetailScreen(title: "새 단어")
+          "/": (context) => HomeScreen(title: '보카보까 \u{1F440}'),
         });
   }
 }
