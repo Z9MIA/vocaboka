@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:vocaboka/src/details.dart';
 import 'package:vocaboka/src/model/vocabulary.dart';
 import 'package:vocaboka/src/repository/sql_voca_repository.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title});
+  const HomeScreen({super.key, required this.title, this.initialValue});
 
   final String title;
+  final String? initialValue;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -18,15 +20,23 @@ typedef OnDelete = void Function(int id);
 class _HomeScreenState extends State<HomeScreen> {
   void update() => setState(() {});
 
+  Future<void> _loadInitialValueAndNavigate() async {
+    print("[home] _loadInitialValueAndNavigate: ${widget.initialValue}");
+    if (widget.initialValue?.isNotEmpty == true) {
+      _navigateAndUpdateList(widget.initialValue);
+    }
+  }
+
   Future<List<Vocabulary>> _load() async {
     return SqlVocaRepository.getAll();
   }
 
-  Future<void> _navigateAndUpdateList() async {
+  Future<void> _navigateAndUpdateList(String? initialValue) async {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => const DetailsScreen(title: "새 단어")));
+            builder: (context) =>
+                DetailsScreen(title: "새 단어", initialValue: initialValue)));
     print(result);
 
     if (result != null && result is bool && result) {
@@ -136,7 +146,9 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 10),
           FloatingActionButton(
             heroTag: "add",
-            onPressed: _navigateAndUpdateList,
+            onPressed: () {
+              _navigateAndUpdateList(null);
+            },
             tooltip: 'Increment',
             child: const Icon(Icons.add),
           ),

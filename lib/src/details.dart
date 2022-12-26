@@ -5,15 +5,18 @@ import 'package:vocaboka/src/repository/sql_voca_repository.dart';
 class DetailsScreenArguments {
   final String title;
   final int? vocaId;
+  final String? initialValue;
 
-  DetailsScreenArguments(this.title, this.vocaId);
+  DetailsScreenArguments(this.title, this.vocaId, this.initialValue);
 }
 
 class DetailsScreen extends StatefulWidget {
-  const DetailsScreen({super.key, required this.title, this.id});
+  const DetailsScreen(
+      {super.key, required this.title, this.id, this.initialValue});
 
   final String title;
   final int? id;
+  final String? initialValue;
 
   @override
   State<DetailsScreen> createState() => _DetailsScreenState();
@@ -77,14 +80,19 @@ class _DetailsScreenState extends State<DetailsScreen> {
     return SqlVocaRepository.getOne(id);
   }
 
-  Widget renderFormWidget(id) {
-    if (id == null) {
+  Widget renderFormWidget(int? id) {
+    if (widget.initialValue != null || id == null) {
+      if (widget.initialValue != null) {
+        setVoca(widget.initialValue!);
+      }
       return Form(
           key: _formKey,
           child: VocaInputWidget(
-              onChangeVoca: setVoca,
-              onChangeDescription: setDescription,
-              onChangeExample: setExample));
+            onChangeVoca: setVoca,
+            onChangeDescription: setDescription,
+            onChangeExample: setExample,
+            vocabulary: _vocabulary,
+          ));
     } else {
       return FutureBuilder<Vocabulary?>(
           future: _load(id),
