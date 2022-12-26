@@ -16,6 +16,12 @@ class SqlVocaRepository {
         where: "${VocabularyFields.id} = ?", whereArgs: [vocabulary.id]);
   }
 
+  static Future<void> delete(int id) async {
+    var db = await SqlDatabase().database;
+    await db.delete(Vocabulary.tableName,
+        where: "${VocabularyFields.id} = ?", whereArgs: [id]);
+  }
+
   static Future<List<Vocabulary>> getAll() async {
     var db = await SqlDatabase().database;
     var result = await db.query(Vocabulary.tableName, columns: [

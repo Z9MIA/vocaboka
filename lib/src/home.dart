@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 typedef OnEdit = void Function(int id);
+typedef OnDelete = void Function(int id);
 
 class _HomeScreenState extends State<HomeScreen> {
   void update() => setState(() {});
@@ -34,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void onEdit(int id) async {
+    Navigator.pop(context);
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
@@ -46,6 +48,35 @@ class _HomeScreenState extends State<HomeScreen> {
     if (result != null && result is bool && result) {
       update();
     }
+  }
+
+  void onDelete(int id) async {
+    Navigator.pop(context);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              content: SingleChildScrollView(
+                  child: ListBody(
+                children: <Widget>[Text("정말로 삭제하실건가요?")],
+              )),
+              actions: <Widget>[
+                TextButton(
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Theme.of(context).disabledColor),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                TextButton(
+                    child: Text("Delete"),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await SqlVocaRepository.delete(id);
+                      update();
+                    })
+              ]);
+        });
   }
 
   @override
@@ -84,6 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     (index) => VocaWidget(
                           item: datas[index],
                           onEdit: onEdit,
+                          onDelete: onDelete,
                         )));
           }
 
@@ -117,8 +149,13 @@ class _HomeScreenState extends State<HomeScreen> {
 class VocaWidget extends StatefulWidget {
   final Vocabulary item;
   final OnEdit onEdit;
+  final OnDelete onDelete;
 
-  const VocaWidget({super.key, required this.item, required this.onEdit});
+  const VocaWidget(
+      {super.key,
+      required this.item,
+      required this.onEdit,
+      required this.onDelete});
 
   @override
   State<VocaWidget> createState() => _VocaWidgetState();
@@ -144,7 +181,10 @@ class _VocaWidgetState extends State<VocaWidget> {
               showModalBottomSheet(
                   context: context,
                   builder: (context) => ModalBottomSheetWidget(
-                      item: widget.item, onEdit: widget.onEdit));
+                        item: widget.item,
+                        onEdit: widget.onEdit,
+                        onDelete: widget.onDelete,
+                      ));
             },
             child: Align(
                 alignment: Alignment.centerLeft,
@@ -173,10 +213,14 @@ class _VocaWidgetState extends State<VocaWidget> {
 
 class ModalBottomSheetWidget extends StatelessWidget {
   const ModalBottomSheetWidget(
-      {super.key, required this.item, required this.onEdit});
+      {super.key,
+      required this.item,
+      required this.onEdit,
+      required this.onDelete});
 
   final Vocabulary item;
   final OnEdit onEdit;
+  final OnDelete onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +245,7 @@ class ModalBottomSheetWidget extends StatelessWidget {
               leading: Icon(Icons.delete),
               title: Text("삭제"),
               onTap: () {
-                print("onTap Photo");
+                onDelete(item.id!);
               })
         ],
       ),
