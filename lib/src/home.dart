@@ -207,13 +207,13 @@ class _VocaWidgetState extends State<VocaWidget> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(widget.item.voca,
+                          Text(widget.item.word,
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold)),
                           SizedBox(height: 10),
                           Visibility(
                             visible: _showDescription,
-                            child: Text(widget.item.description,
+                            child: Text(widget.item.meaning,
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,

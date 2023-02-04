@@ -9,18 +9,18 @@ class Vocabulary {
   static String tableName = "voca";
 
   final int? id;
-  String voca;
-  String description;
+  String word;
+  String meaning;
   String? example;
 
   Vocabulary(
-      {this.id, required this.voca, required this.description, this.example});
+      {this.id, required this.word, required this.meaning, this.example});
 
   Map<String, dynamic> toJson() {
     return {
       VocabularyFields.id: id,
-      VocabularyFields.voca: voca,
-      VocabularyFields.description: description,
+      VocabularyFields.voca: word,
+      VocabularyFields.description: meaning,
       VocabularyFields.example: example
     };
   }
@@ -28,8 +28,8 @@ class Vocabulary {
   factory Vocabulary.fromJson(Map<String, dynamic> json) {
     return Vocabulary(
         id: json[VocabularyFields.id] as int?,
-        voca: json[VocabularyFields.voca],
-        description: json[VocabularyFields.description],
+        word: json[VocabularyFields.voca],
+        meaning: json[VocabularyFields.description],
         example: json[VocabularyFields.example] ?? '');
   }
 
@@ -37,8 +37,8 @@ class Vocabulary {
       {int? id, String? voca, String? description, String? example}) {
     return Vocabulary(
         id: id ?? this.id,
-        voca: voca ?? this.voca,
-        description: description ?? this.description,
+        word: voca ?? this.word,
+        meaning: description ?? this.meaning,
         example: example ?? this.example);
   }
 }

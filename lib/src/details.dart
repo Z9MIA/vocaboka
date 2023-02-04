@@ -25,9 +25,10 @@ class DetailsScreen extends StatefulWidget {
 typedef OnChangeVoca = void Function(String voca);
 typedef OnChangeDescription = void Function(String description);
 typedef OnChangeExample = void Function(String example);
+typedef OnSwap = void Function();
 
 class _DetailsScreenState extends State<DetailsScreen> {
-  Vocabulary _vocabulary = Vocabulary(voca: "", description: "");
+  Vocabulary _vocabulary = Vocabulary(word: "", meaning: "");
   final _formKey = GlobalKey<FormState>();
   final _snackBar = SnackBar(
     content: Text("저장이 완료되었습니다."),
@@ -38,25 +39,35 @@ class _DetailsScreenState extends State<DetailsScreen> {
     dismissDirection: DismissDirection.down,
   );
 
-  void setVoca(String voca) {
+  void _setWord(String word) {
     setState(() {
-      if (voca.isNotEmpty) {
-        _vocabulary.voca = voca;
+      if (word.isNotEmpty) {
+        _vocabulary.word = word;
       }
     });
   }
 
-  void setDescription(String description) {
+  void _setMeaning(String meaning) {
     setState(() {
-      if (description.isNotEmpty) {
-        _vocabulary.description = description;
+      if (meaning.isNotEmpty) {
+        _vocabulary.meaning = meaning;
       }
     });
   }
 
-  void setExample(String example) {
+  void _setExample(String example) {
     setState(() {
       _vocabulary.example = example;
+    });
+  }
+
+  void _onSwap() {
+    setState(() {
+      print("OnSwap ${_vocabulary.word}");
+      String description = _vocabulary.meaning;
+      _vocabulary.meaning = _vocabulary.word;
+      _vocabulary.word = description;
+      print("OnSwap ${_vocabulary.word}");
     });
   }
 
@@ -83,14 +94,15 @@ class _DetailsScreenState extends State<DetailsScreen> {
   Widget renderFormWidget(int? id) {
     if (widget.initialValue != null || id == null) {
       if (widget.initialValue != null) {
-        setVoca(widget.initialValue!);
+        _setWord(widget.initialValue!);
       }
       return Form(
           key: _formKey,
           child: VocaInputWidget(
-            onChangeVoca: setVoca,
-            onChangeDescription: setDescription,
-            onChangeExample: setExample,
+            onChangeVoca: _setWord,
+            onChangeDescription: _setMeaning,
+            onChangeExample: _setExample,
+            onSwap: _onSwap,
             vocabulary: _vocabulary,
           ));
     } else {
@@ -108,9 +120,10 @@ class _DetailsScreenState extends State<DetailsScreen> {
               return Form(
                   key: _formKey,
                   child: VocaInputWidget(
-                    onChangeVoca: setVoca,
-                    onChangeDescription: setDescription,
-                    onChangeExample: setExample,
+                    onChangeVoca: _setWord,
+                    onChangeDescription: _setMeaning,
+                    onChangeExample: _setExample,
+                    onSwap: _onSwap,
                     vocabulary: snapshot.data,
                   ));
             }
@@ -156,11 +169,13 @@ class VocaInputWidget extends StatelessWidget {
       required this.onChangeVoca,
       required this.onChangeDescription,
       required this.onChangeExample,
+      required this.onSwap,
       this.vocabulary});
 
   final OnChangeVoca onChangeVoca;
   final OnChangeDescription onChangeDescription;
   final OnChangeExample onChangeExample;
+  final OnSwap onSwap;
   final Vocabulary? vocabulary;
 
   renderTextFormField({
@@ -179,6 +194,7 @@ class VocaInputWidget extends StatelessWidget {
         onSaved: onSaved,
         validator: validator,
         textInputAction: textInputAction,
+        onChanged: onSaved,
         decoration: InputDecoration(
             contentPadding: EdgeInsets.fromLTRB(30, 20, 30, 20),
             border: OutlineInputBorder(
@@ -207,7 +223,7 @@ class VocaInputWidget extends StatelessWidget {
           renderTextFormField(
             context: context,
             label: "단어",
-            initialValue: vocabulary?.voca,
+            initialValue: vocabulary?.word,
             textInputAction: TextInputAction.next,
             onSaved: (val) {
               onChangeVoca(val);
@@ -219,11 +235,15 @@ class VocaInputWidget extends StatelessWidget {
               return null;
             },
           ),
-          SizedBox(height: 40),
+          SizedBox(height: 10),
+          Center(
+              child:
+                  IconButton(onPressed: onSwap, icon: Icon(Icons.swap_vert))),
+          SizedBox(height: 10),
           renderTextFormField(
               context: context,
               label: "의미",
-              initialValue: vocabulary?.description,
+              initialValue: vocabulary?.meaning,
               textInputAction: TextInputAction.next,
               onSaved: (val) {
                 onChangeDescription(val);
