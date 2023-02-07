@@ -58,8 +58,6 @@ class ShareViewController: SLComposeServiceViewController {
 
             if error == nil, let item = data as? String, let this = self {
                 
-                print("[kminkang] handleText: \(item)")
-
                 this.sharedText.append(item)
 
                 // If this is the last item, save imagesData in userDefaults and redirect to host app
@@ -91,7 +89,6 @@ class ShareViewController: SLComposeServiceViewController {
 
     private func redirectToHostApp(type: RedirectType) {
         let url = URL(string: "ShareMedia://dataUrl=\(sharedKey)#\(type)")
-        print("[kminkang] redirectToHostApp: \(url)")
         var responder = self as UIResponder?
         let selectorOpenURL = sel_registerName("openURL:")
 
