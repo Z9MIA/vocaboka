@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vocaboka/src/home.dart';
 import 'package:vocaboka/src/model/vocabulary.dart';
 import 'package:vocaboka/src/repository/sql_voca_repository.dart';
 
@@ -99,10 +98,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   }
 
   Widget renderFormWidget(int? id) {
-    if (widget.initialValue != null || id == null) {
-      if (widget.initialValue != null) {
-        _setWord(widget.initialValue!);
-      }
+    if (id == null) {
       return Form(
           key: _formKey,
           child: VocabularyInputWidget(
@@ -145,6 +141,14 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
             return Center(child: CircularProgressIndicator());
           });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialValue != null) {
+      _setWord(widget.initialValue!);
     }
   }
 
@@ -213,7 +217,7 @@ class VocabularyInputWidget extends StatelessWidget {
       SizedBox(height: 10),
       TextFormField(
         key: key,
-        initialValue: initialValue,
+        initialValue: initialValue ?? "",
         validator: validator,
         textInputAction: textInputAction,
         onChanged: onValueChanged,

@@ -49,7 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // For sharing or opening urls/text coming from outside the app while the app is in the memory
     ReceiveSharingIntent.getTextStream().listen((String value) {
       print("Receive Text: ${value}");
-      _navigateAndUpdateList(context, value);
+      var sharedText = value.split("\n")[0].replaceAll('"', "").toLowerCase();
+      print("Change Received Text: ${sharedText}");
+      
+      _navigateAndUpdateList(context, sharedText);
     }, onError: (err) {
       print("getTextStream error: $err");
     });
