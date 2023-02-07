@@ -3,12 +3,13 @@ import 'package:flutter/scheduler.dart';
 import 'package:vocaboka/src/details.dart';
 import 'package:vocaboka/src/model/vocabulary.dart';
 import 'package:vocaboka/src/repository/sql_voca_repository.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:flutter/scheduler.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title, this.initialValue});
+  const HomeScreen({super.key});
 
-  final String title;
-  final String? initialValue;
+  final String title = '보카보까 \u{1F440}';
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -20,28 +21,38 @@ typedef OnDelete = void Function(int id);
 class _HomeScreenState extends State<HomeScreen> {
   void update() => setState(() {});
 
-  Future<void> _loadInitialValueAndNavigate() async {
-    print("[home] _loadInitialValueAndNavigate: ${widget.initialValue}");
-    if (widget.initialValue?.isNotEmpty == true) {
-      _navigateAndUpdateList(widget.initialValue);
-    }
-  }
-
   Future<List<Vocabulary>> _load() async {
     return SqlVocaRepository.getAll();
   }
 
-  Future<void> _navigateAndUpdateList(String? initialValue) async {
+  Future<void> _navigateAndUpdateList(BuildContext context, String? initialValue) async {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
                 DetailsScreen(title: "새 단어", initialValue: initialValue)));
-    print(result);
 
     if (result != null && result is bool && result) {
       update();
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      listenShareMediaFiles(context);
+    });
+  }
+
+  void listenShareMediaFiles(BuildContext context) {
+    // For sharing or opening urls/text coming from outside the app while the app is in the memory
+    ReceiveSharingIntent.getTextStream().listen((String value) {
+      print("Receive Text: ${value}");
+      _navigateAndUpdateList(context, value);
+    }, onError: (err) {
+      print("getTextStream error: $err");
+    });
   }
 
   void onEdit(int id) async {
@@ -147,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
           FloatingActionButton(
             heroTag: "add",
             onPressed: () {
-              _navigateAndUpdateList(null);
+              _navigateAndUpdateList(context, null);
             },
             tooltip: 'Increment',
             child: const Icon(Icons.add),

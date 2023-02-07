@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocaboka/src/home.dart';
 import 'package:vocaboka/src/model/vocabulary.dart';
 import 'package:vocaboka/src/repository/sql_voca_repository.dart';
 
@@ -69,6 +70,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
       String meaning = _meaning;
       _meaning = _word;
       _word = meaning;
+      print("meaning: ${_meaning}, word: ${_word}");
       _isWordInput = !_isWordInput;
     });
   }
